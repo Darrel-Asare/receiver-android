@@ -4,7 +4,10 @@
  * SPDX-License-Identifier: Apache-2.0
  *
  */
+
 apply plugin: 'com.android.application'
+apply plugin: 'org.jetbrains.kotlin.android'
+
 android {
     def versionMajor = 3
     def versionMinor = 5
@@ -13,7 +16,7 @@ android {
 
     defaultConfig {
         applicationId "org.opendroneid.android"
-        minSdkVersion 21
+        minSdkVersion 24
         targetSdkVersion 34
         versionCode versionMajor * 10000 + versionMinor * 100 + versionPatch
         versionName "${versionMajor}.${versionMinor}.${versionPatch}"
@@ -44,14 +47,18 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = 1.8
-        targetCompatibility = 1.8
+        sourceCompatibility = 17
+        targetCompatibility = 17
     }
     namespace 'org.opendroneid.android'
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'androidx.core:core-ktx:+'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0'
+    implementation 'com.google.code.gson:gson:2.8.8'
+
 
     def support_version = "30.0.0"
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
@@ -68,13 +75,16 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 
-//    The below if-else works, but will then fail to compile the AircraftMapView.java or
-//    AircraftOsMapView.java file. How to properly variate this is unclear.
-//    if (project.hasProperty('org.gradle.project.map')) {
-        implementation 'com.google.android.gms:play-services-maps:18.2.0'
-        implementation 'com.google.android.gms:play-services-location:21.0.1'
-//    } else {
-        implementation 'androidx.preference:preference:1.2.1'
-        implementation 'org.osmdroid:osmdroid-android:6.1.13'
-//    }
+    // The below if-else works, but will then fail to compile the AircraftMapView.java or
+    // AircraftOsMapView.java file. How to properly variate this is unclear.
+    // if (project.hasProperty('org.gradle.project.map')) {
+    implementation 'com.google.android.gms:play-services-maps:18.2.0'
+    implementation 'com.google.android.gms:play-services-location:21.0.1'
+    // } else {
+    implementation 'androidx.preference:preference:1.2.1'
+    implementation 'org.osmdroid:osmdroid-android:6.1.13'
+    // }
+
+    // Added new dependency
+    implementation 'com.github.Web3Auth:web3auth-android-sdk:4.0.8'
 }
