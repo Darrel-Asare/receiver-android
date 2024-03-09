@@ -30,10 +30,30 @@ public class MainActivity : AppCompatActivity() {
             Web3AuthOptions(
                 context = this,
                 clientId = getString(R.string.web3auth_project_id), // Replace with your actual project ID (don't include quotes)
-                network = Network.MAINNET, // Choose the network you want to use (MAINNET, TESTNET, CYAN, AQUA)
-                redirectUrl = Uri.parse("org.opendroneid.android.app://auth") // Define your app's redirect URL
+                network = Network.TESTNET, // Choose the network you want to use (MAINNET, TESTNET, CYAN, AQUA)
+                redirectUrl = Uri.parse("org.opendroneid.android://auth") // Define your app's redirect URL
             )
         )
+
+        // Set up click listeners for buttons
+        signInButton = findViewById<Button>(R.id.signInButton)
+        signInButton.setOnClickListener { signIn() }
+
+        signOutButton = findViewById<Button>(R.id.signOutButton)
+        signOutButton.setOnClickListener { signOut() }
+        signOutButton.visibility = View.GONE  // Initially hide sign out button
+
+        val getAddressButton = findViewById<Button>(R.id.getAddress)
+        getAddressButton.setOnClickListener { getAddress() }
+        getAddressButton.visibility = View.GONE
+
+        val getBalanceButton = findViewById<Button>(R.id.getBalance)
+        getBalanceButton.setOnClickListener { getBalance() }
+        getBalanceButton.visibility = View.GONE
+
+        val getTransactionButton = findViewById<Button>(R.id.getTransaction)
+        getTransactionButton.setOnClickListener { sendTransaction(0.001, "0xeaA8Af602b2eDE45922818AE5f9f7FdE50cFa1A8") }
+        getTransactionButton.visibility = View.GONE
 
         // Handle user signing in when the app is not running
         web3Auth.setResultUrl(intent?.data)
@@ -42,8 +62,21 @@ public class MainActivity : AppCompatActivity() {
         signInButton.setOnClickListener { signIn() }
         signOutButton.setOnClickListener { signOut() }
 
+
         // Initially, hide sign out button as user isn't logged in
         signOutButton.visibility = View.GONE
+    }
+
+    private fun sendTransaction(d: Double, s: String) {
+
+    }
+
+    private fun getBalance() {
+        TODO("Not yet implemented")
+    }
+
+    private fun getAddress() {
+        TODO("Not yet implemented")
     }
 
     override fun onNewIntent(intent: Intent?) {
