@@ -87,4 +87,5 @@ dependencies {
 
     // Added new dependency
     implementation 'com.github.Web3Auth:web3auth-android-sdk:4.0.8'
+    implementation 'org.sol4k:sol4k:0.4.1'
 }

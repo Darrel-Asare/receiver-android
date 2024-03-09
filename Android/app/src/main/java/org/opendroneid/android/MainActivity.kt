@@ -13,7 +13,7 @@ import com.web3auth.core.Web3Auth
 import com.web3auth.core.types.*
 import java.util.concurrent.CompletableFuture
 
-public class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity() {
 
     private lateinit var web3Auth: Web3Auth
     private val gson = Gson()
@@ -22,71 +22,44 @@ public class MainActivity : AppCompatActivity() {
     private lateinit var signOutButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)  // Specify superclass method
+        super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // Initialize Web3Auth with the necessary options
         web3Auth = Web3Auth(
             Web3AuthOptions(
                 context = this,
-                clientId = getString(R.string.web3auth_project_id), // Replace with your actual project ID (don't include quotes)
-                network = Network.TESTNET, // Choose the network you want to use (MAINNET, TESTNET, CYAN, AQUA)
-                redirectUrl = Uri.parse("org.opendroneid.android://auth") // Define your app's redirect URL
+                clientId = getString(R.string.web3auth_project_id),
+                network = Network.TESTNET,
+                redirectUrl = Uri.parse("org.opendroneid.android://auth")
             )
         )
 
-        // Set up click listeners for buttons
         signInButton = findViewById<Button>(R.id.signInButton)
         signInButton.setOnClickListener { signIn() }
 
         signOutButton = findViewById<Button>(R.id.signOutButton)
         signOutButton.setOnClickListener { signOut() }
-        signOutButton.visibility = View.GONE  // Initially hide sign out button
-
-
-
-
-
-
-
-        // Handle user signing in when the app is not running
-        web3Auth.setResultUrl(intent?.data)
-
-        // Set up click listeners for buttons
-        signInButton.setOnClickListener { signIn() }
-        signOutButton.setOnClickListener { signOut() }
-
-
-        // Initially, hide sign out button as user isn't logged in
         signOutButton.visibility = View.GONE
+
+        web3Auth.setResultUrl(intent?.data)
     }
-
-
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
-
-        // Handle user signing in when app is active
         web3Auth.setResultUrl(intent?.data)
     }
 
     private fun signIn() {
-        val selectedLoginProvider = Provider.GOOGLE   // Can be GOOGLE, FACEBOOK, TWITCH etc.
+        val selectedLoginProvider = Provider.GOOGLE
         val loginCompletableFuture: CompletableFuture<Web3AuthResponse> = web3Auth.login(LoginParams(selectedLoginProvider))
 
         loginCompletableFuture.whenComplete { loginResponse, error ->
             if (error == null) {
-                // Login successful, update UI and credentials
-                println(loginResponse)
                 contentTextView.text = "Logged in with: " + gson.toJson(loginResponse.userInfo)
                 signInButton.visibility = View.GONE
                 signOutButton.visibility = View.VISIBLE
-
-                // (Optional) Retrieve user private key for further actions (refer to Web3Auth documentation)
-                // String privateKey = web3Auth.getPrivkey();
             } else {
-                // Login failed, handle error
-                Log.d("MainActivity_Web3Auth", error.message ?: "Something went wrong" )
+                Log.d("MainActivity_Web3Auth", error.message ?: "Something went wrong")
                 contentTextView.text = "Login failed!"
             }
         }
@@ -96,13 +69,11 @@ public class MainActivity : AppCompatActivity() {
         val logoutCompletableFuture =  web3Auth.logout()
         logoutCompletableFuture.whenComplete { _, error ->
             if (error == null) {
-                // Logout successful, update UI
                 contentTextView.text = "Logged Out"
                 signInButton.visibility = View.VISIBLE
                 signOutButton.visibility = View.GONE
             } else {
-                // Logout failed, handle error
-                Log.d("MainActivity_Web3Auth", error.message ?: "Something went wrong" )
+                Log.d("MainActivity_Web3Auth", error.message ?: "Something went wrong")
                 contentTextView.text = "Logout failed!"
             }
         }
@@ -115,13 +86,14 @@ public class MainActivity : AppCompatActivity() {
 
         var key: String? = null
         var userInfo: UserInfo? = null
+
         try {
             key = web3Auth.getPrivkey()
             userInfo = web3Auth.getUserInfo()
         } catch (ex: Exception) {
             print(ex)
         }
-        println(userInfo)
+
         if (key is String && key.isNotEmpty()) {
             contentTextView.text = gson.toJson(userInfo) + "\n Private Key: " + key
             contentTextView.visibility = View.VISIBLE
@@ -135,6 +107,5 @@ public class MainActivity : AppCompatActivity() {
             signOutButton.visibility = View.GONE
 
         }
-
     }
 }
