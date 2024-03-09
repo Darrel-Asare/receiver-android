@@ -1,111 +1,98 @@
 package org.opendroneid.android
 
-import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
-import android.view.View
-import android.widget.Button
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import com.google.gson.Gson
 import com.web3auth.core.Web3Auth
-import com.web3auth.core.types.*
-import java.util.concurrent.CompletableFuture
+import com.web3auth.core.types.Network
+import com.web3auth.core.types.Web3AuthOptions
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.sol4k.Connection
+import org.sol4k.Keypair
+import org.sol4k.RpcUrl
+import org.sol4k.Transaction
+import org.sol4k.instruction.TransferInstruction
+import java.math.BigDecimal
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var web3Auth: Web3Auth
-    private val gson = Gson()
-    private lateinit var contentTextView: TextView
-    private lateinit var signInButton: Button
-    private lateinit var signOutButton: Button
-
+    @OptIn(ExperimentalStdlibApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        web3Auth = Web3Auth(
+        val connection = Connection(RpcUrl.DEVNET)
+
+        // Initialize Web3Auth SDK
+        val web3Auth: Web3Auth = Web3Auth(
             Web3AuthOptions(
+                clientId = "BAt3mbhdYrmD311fwjY1vY4XLAK_uRZIiUZRVT2ipE2_ajzlkogL0gwFflgiVgUpPIMU3VxszsZM-ZUErxZvmyY",  // Replace with your actual Client ID
                 context = this,
-                clientId = getString(R.string.web3auth_project_id),
-                network = Network.TESTNET,
-                redirectUrl = Uri.parse("org.opendroneid.android://auth")
+                network = Network.TESTNET, // Choose the network you want to use (MAINNET, TESTNET, CYAN, AQUA)
+                redirectUrl = Uri.parse("org.opendroneid.android://auth") // Define your app's redirect URL
             )
         )
 
-        signInButton = findViewById<Button>(R.id.signInButton)
-        signInButton.setOnClickListener { signIn() }
+        // Check user authentication status
+        val isUserAuthenticated = web3Auth.getPrivkey().isNotEmpty()
 
-        signOutButton = findViewById<Button>(R.id.signOutButton)
-        signOutButton.setOnClickListener { signOut() }
-        signOutButton.visibility = View.GONE
-
-        web3Auth.setResultUrl(intent?.data)
-    }
-
-    override fun onNewIntent(intent: Intent?) {
-        super.onNewIntent(intent)
-        web3Auth.setResultUrl(intent?.data)
-    }
-
-    private fun signIn() {
-        val selectedLoginProvider = Provider.GOOGLE
-        val loginCompletableFuture: CompletableFuture<Web3AuthResponse> = web3Auth.login(LoginParams(selectedLoginProvider))
-
-        loginCompletableFuture.whenComplete { loginResponse, error ->
-            if (error == null) {
-                contentTextView.text = "Logged in with: " + gson.toJson(loginResponse.userInfo)
-                signInButton.visibility = View.GONE
-                signOutButton.visibility = View.VISIBLE
-            } else {
-                Log.d("MainActivity_Web3Auth", error.message ?: "Something went wrong")
-                contentTextView.text = "Login failed!"
+        // Handle user authentication logic here
+        if (isUserAuthenticated) {
+            try {
+                val userInfo = web3Auth.getUserInfo()!!
+                // Use user info
+            } catch (e: Exception) {
+                // Handle error
             }
-        }
-    }
 
-    private fun signOut() {
-        val logoutCompletableFuture =  web3Auth.logout()
-        logoutCompletableFuture.whenComplete { _, error ->
-            if (error == null) {
-                contentTextView.text = "Logged Out"
-                signInButton.visibility = View.VISIBLE
-                signOutButton.visibility = View.GONE
-            } else {
-                Log.d("MainActivity_Web3Auth", error.message ?: "Something went wrong")
-                contentTextView.text = "Logout failed!"
+            val ed25519PrivateKey = web3Auth.getEd25519PrivKey()
+            val solanaKeyPair = Keypair.fromSecretKey(ed25519PrivateKey.hexToByteArray())
+
+            val userAccount = solanaKeyPair.publicKey.toBase58()
+
+            try {
+                val publicKey = solanaKeyPair.publicKey
+                val balanceResponse = connection.getBalance(publicKey).toBigDecimal()
+                val userBalance = balanceResponse.divide(BigDecimal.TEN.pow(9)).toString()
+                // Display user balance: $userBalance
+            } catch (e: Exception) {
+                // Handle error
             }
-        }
-    }
 
-    private fun reRender() {
-        val contentTextView = findViewById<TextView>(R.id.contentTextView)
-        val signInButton = findViewById<Button>(R.id.signInButton)
-        val signOutButton = findViewById<Button>(R.id.signOutButton)
-
-        var key: String? = null
-        var userInfo: UserInfo? = null
-
-        try {
-            key = web3Auth.getPrivkey()
-            userInfo = web3Auth.getUserInfo()
-        } catch (ex: Exception) {
-            print(ex)
-        }
-
-        if (key is String && key.isNotEmpty()) {
-            contentTextView.text = gson.toJson(userInfo) + "\n Private Key: " + key
-            contentTextView.visibility = View.VISIBLE
-            signInButton.visibility = View.GONE
-            signOutButton.visibility = View.VISIBLE
-
+            // Prepare and send a signed transaction
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    val transaction = prepareSignedTransaction(solanaKeyPair)
+                    connection.sendTransaction(transaction = transaction)
+                    // Transaction successful!
+                } catch (e: Exception) {
+                    // Handle error
+                }
+            }
         } else {
-            contentTextView.text = getString(R.string.not_logged_in)
-            contentTextView.visibility = View.GONE
-            signInButton.visibility = View.VISIBLE
-            signOutButton.visibility = View.GONE
-
+            // User is not authenticated, handle login flow
         }
     }
+
+    private suspend fun prepareSignedTransaction(sender: Keypair): Transaction =
+        withContext(Dispatchers.IO) {
+            var connection = null
+            val blockHash = connection.getLatestBlockhash()
+            val instruction =
+                TransferInstruction(sender.publicKey, sender.publicKey, lamports = 10000000)
+            val transaction = Transaction(blockHash, instruction, feePayer = sender.publicKey)
+            transaction.sign(sender)
+            transaction
+        }
 }
+
+private fun Nothing?.getLatestBlockhash(): String {
+    TODO("Not yet implemented")
+}
+
+
+
+
