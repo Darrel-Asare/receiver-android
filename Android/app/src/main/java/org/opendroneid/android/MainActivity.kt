@@ -43,17 +43,11 @@ public class MainActivity : AppCompatActivity() {
         signOutButton.setOnClickListener { signOut() }
         signOutButton.visibility = View.GONE  // Initially hide sign out button
 
-        val getAddressButton = findViewById<Button>(R.id.getAddress)
-        getAddressButton.setOnClickListener { getAddress() }
-        getAddressButton.visibility = View.GONE
 
-        val getBalanceButton = findViewById<Button>(R.id.getBalance)
-        getBalanceButton.setOnClickListener { getBalance() }
-        getBalanceButton.visibility = View.GONE
 
-        val getTransactionButton = findViewById<Button>(R.id.getTransaction)
-        getTransactionButton.setOnClickListener { sendTransaction(0.001, "0xeaA8Af602b2eDE45922818AE5f9f7FdE50cFa1A8") }
-        getTransactionButton.visibility = View.GONE
+
+
+
 
         // Handle user signing in when the app is not running
         web3Auth.setResultUrl(intent?.data)
@@ -67,17 +61,7 @@ public class MainActivity : AppCompatActivity() {
         signOutButton.visibility = View.GONE
     }
 
-    private fun sendTransaction(d: Double, s: String) {
 
-    }
-
-    private fun getBalance() {
-        TODO("Not yet implemented")
-    }
-
-    private fun getAddress() {
-        TODO("Not yet implemented")
-    }
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
@@ -143,23 +127,13 @@ public class MainActivity : AppCompatActivity() {
             contentTextView.visibility = View.VISIBLE
             signInButton.visibility = View.GONE
             signOutButton.visibility = View.VISIBLE
-            //   getAddressButton.visibility = View.VISIBLE
-            //   getBalanceButton.visibility = View.VISIBLE
-            //    getMessageButton.visibility = View.VISIBLE
-            //    getTransactionButton.visibility = View.VISIBLE
-            //   getEnableMFAButton.visibility = View.VISIBLE
-            //  getLaunchWalletServicesButton.visibility = View.VISIBLE
+
         } else {
             contentTextView.text = getString(R.string.not_logged_in)
             contentTextView.visibility = View.GONE
             signInButton.visibility = View.VISIBLE
             signOutButton.visibility = View.GONE
-            //   getAddressButton.visibility = View.GONE
-            //  getBalanceButton.visibility = View.GONE
-            //  getMessageButton.visibility = View.GONE
-            //   getTransactionButton.visibility = View.GONE
-            //   getEnableMFAButton.visibility = View.GONE
-            //  getLaunchWalletServicesButton.visibility = View.GONE
+
         }
 
     }

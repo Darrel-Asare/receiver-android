@@ -27,33 +27,6 @@
         </ScrollView>
 
         <Button
-            android:id="@+id/getAddress"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginBottom="8dp"
-            android:text="@string/address" />
-
-        <Button
-            android:id="@+id/getBalance"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginBottom="8dp"
-            android:text="@string/balance" />
-
-        <Button
-            android:id="@+id/getTransaction"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginBottom="8dp"
-            android:text="@string/send_transaction" />
-
-        <Button
             android:id="@+id/signOutButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
