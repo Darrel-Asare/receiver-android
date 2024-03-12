@@ -123,10 +123,9 @@
         Go back, find the &quot;Developer options&quot; menu, scroll to &quot;Wi-Fi scan throttling&quot; and disable it.&lt;br&gt;</string>
     <string name="nanHelp">Reception of Wi-Fi Neighbor-aware Network remote ID signals is possible only if the device has support for Wi-Fi NaN.&lt;br&gt;
         See the claimed support for this device for this feature in the options menu.&lt;br&gt;</string>
-    <string name="not_logged_in" />
 
-
-
-    <string name="logout">LOGOUT</string>
-    <string name="login_with_google">Login with Auth0</string>
+    <string name="not_logged_in" translatable="false" />
+    <string name="logout" translatable="false">LOGOUT</string>
+    <string name="login_with_google" translatable="false">Login with Auth0</string>
+    <string name="login" translatable="false" />
 </resources>
